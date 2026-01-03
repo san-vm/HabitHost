@@ -94,23 +94,25 @@
 			--ring: 0 0 0 3px var(--focus-ring);
 		}
 
+		/* Softer, more usable dark palette */
 		@media (prefers-color-scheme: dark) {
 			:root {
-				--bg-1: rgba(29, 78, 216, 0.15);
-				--bg-2: rgba(180, 83, 9, 0.15);
-				--bg-3: rgba(21, 128, 61, 0.15);
+				--bg-1: rgba(59, 130, 246, 0.16);
+				--bg-2: rgba(245, 158, 11, 0.14);
+				--bg-3: rgba(34, 197, 94, 0.14);
 
-				--bg: var(--c-charcoal-700);
-				--surface: var(--c-charcoal-800);
-				--text: rgba(245, 245, 245, 1);
-				--text2: rgba(167, 169, 169, .75);
+				--bg: rgba(17, 24, 39, 1);
+				--surface: rgba(31, 41, 55, 1);
+
+				--text: rgba(248, 250, 252, 1);
+				--text2: rgba(203, 213, 225, .80);
 
 				--primary: var(--c-teal-300);
 				--primary-hover: rgba(45, 166, 178, 1);
 
-				--border: rgba(119, 124, 124, .30);
-				--card-border: rgba(119, 124, 124, .20);
-				--card-border-inner: rgba(119, 124, 124, .15);
+				--border: rgba(148, 163, 184, .28);
+				--card-border: rgba(148, 163, 184, .18);
+				--card-border-inner: rgba(148, 163, 184, .14);
 
 				--danger: var(--c-red-400);
 				--success: var(--c-teal-300);
@@ -146,21 +148,22 @@
 		}
 
 		[data-color-scheme="dark"] {
-			--bg-1: rgba(29, 78, 216, 0.15);
-			--bg-2: rgba(180, 83, 9, 0.15);
-			--bg-3: rgba(21, 128, 61, 0.15);
+			--bg-1: rgba(59, 130, 246, 0.16);
+			--bg-2: rgba(245, 158, 11, 0.14);
+			--bg-3: rgba(34, 197, 94, 0.14);
 
-			--bg: var(--c-charcoal-700);
-			--surface: var(--c-charcoal-800);
-			--text: rgba(245, 245, 245, 1);
-			--text2: rgba(167, 169, 169, .75);
+			--bg: rgba(17, 24, 39, 1);
+			--surface: rgba(31, 41, 55, 1);
+
+			--text: rgba(248, 250, 252, 1);
+			--text2: rgba(203, 213, 225, .80);
 
 			--primary: var(--c-teal-300);
 			--primary-hover: rgba(45, 166, 178, 1);
 
-			--border: rgba(119, 124, 124, .30);
-			--card-border: rgba(119, 124, 124, .20);
-			--card-border-inner: rgba(119, 124, 124, .15);
+			--border: rgba(148, 163, 184, .28);
+			--card-border: rgba(148, 163, 184, .18);
+			--card-border-inner: rgba(148, 163, 184, .14);
 
 			--danger: var(--c-red-400);
 			--success: var(--c-teal-300);
@@ -429,11 +432,8 @@
 		.tab {
 			overflow-y: auto;
 			-ms-overflow-style: none;
-			/* IE/old Edge */
 			scrollbar-width: none;
-			/* Firefox */
 			flex: 1;
-			overflow-y: auto;
 			padding: var(--s-12);
 			padding-right: 16px;
 			display: none;
@@ -441,7 +441,6 @@
 
 		.tab::-webkit-scrollbar {
 			display: none;
-			/* Chrome/Safari/Opera */
 		}
 
 		.tab.active {
@@ -521,11 +520,6 @@
 			cursor: pointer;
 			transition: transform .1s ease, box-shadow .15s ease;
 			background: var(--surface);
-		}
-
-		.habit:hover {
-			box-shadow: var(--sh-sm);
-			transform: translateY(-1px);
 		}
 
 		.check {
@@ -833,10 +827,9 @@
 			color: var(--text);
 		}
 
-		.grid3 {
-			display: grid;
-			grid-template-columns: 1fr 1fr 1fr;
-			gap: var(--s-12);
+		.time-block {
+			margin-top: var(--s-6);
+			margin-bottom: var(--s-6);
 		}
 
 		.time-buttons {
@@ -938,11 +931,34 @@
 			}
 		}
 
-		@media (max-width: 480px) {
-			.grid3 {
-				grid-template-columns: 1fr;
-			}
+		/* Loading overlay */
+		.loading {
+			position: fixed;
+			inset: 0;
+			z-index: 9999;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			padding: var(--s-20);
+			background: rgba(0, 0, 0, .35);
+			backdrop-filter: blur(4px);
+		}
 
+		.loading-card {
+			background: var(--surface);
+			border: 1px solid var(--card-border);
+			border-radius: var(--r-md);
+			box-shadow: var(--sh-md);
+			padding: var(--s-16);
+			width: min(420px, 92vw);
+		}
+
+		.loading-title {
+			font-weight: var(--fw-bold);
+			margin-bottom: var(--s-6);
+		}
+
+		@media (max-width: 480px) {
 			.app {
 				max-width: 100%;
 			}
@@ -965,7 +981,9 @@
 
 				<div class="header-actions">
 					<button class="btn btn--secondary btn--sm" id="toggleSearchBtn" title="Search">🔎</button>
-					<div class="pill" id="todayPill">Today: 0/0</div>
+					<button class="btn btn--secondary btn--sm hidden" id="goTodayBtn"
+						title="Jump to today">Today</button>
+					<div class="pill" id="selectedPill">Selected: Today • 0/0</div>
 				</div>
 			</div>
 
@@ -1130,7 +1148,7 @@
 						style="display:flex; justify-content: space-between; align-items:center; gap: var(--s-12); padding: var(--s-10) 0; border-top: 1px dashed var(--card-border-inner);">
 						<div>
 							<div style="font-weight: var(--fw-semibold);">In-app reminders</div>
-							<div class="muted">Shows the next upcoming habit while this page is open.</div>
+							<div class="muted">Shows the next upcoming habit while this page is open (today only).</div>
 						</div>
 						<button class="btn btn--secondary btn--sm" id="remindersToggle"
 							aria-pressed="false">Off</button>
@@ -1161,12 +1179,20 @@
 		<nav class="bottom">
 			<button class="nav active" data-tab="daily"><span class="ico">☀️</span>Daily</button>
 			<button class="nav" data-tab="monthly"><span class="ico">🗓️</span>Monthly</button>
-			<button class="nav" data-tab="yearly"><span class="ico">🏁</span>Yearly</button>
+			<button class="nav" data-tab="yearly"><span class="ico">🎯</span>Yearly</button>
 			<button class="nav" data-tab="analytics"><span class="ico">📈</span>Analytics</button>
 			<button class="nav" data-tab="account"><span class="ico">⚙️</span>Account</button>
 		</nav>
 
 		<button class="fab" id="addHabitBtn" title="Add habit">+</button>
+	</div>
+
+	<!-- LOADING -->
+	<div class="loading hidden" id="loadingOverlay" aria-hidden="true">
+		<div class="loading-card">
+			<div class="loading-title" id="loadingTitle">Loading…</div>
+			<div class="muted" id="loadingSub">Opening your saved habits.</div>
+		</div>
 	</div>
 
 	<!-- HABIT MODAL -->
@@ -1194,28 +1220,26 @@
 				</div>
 
 				<div class="form-group" id="timeGroup">
-					<label class="label">Time (optional)</label>
-					<div class="grid3">
-						<div>
-							<div class="muted" style="margin-bottom: var(--s-6);">Hour</div>
-							<div class="time-buttons" id="hourButtons"></div>
-						</div>
-						<div>
-							<div class="muted" style="margin-bottom: var(--s-6);">Minute</div>
-							<div class="time-buttons" id="minuteButtons"></div>
-						</div>
-						<div>
-							<div class="muted" style="margin-bottom: var(--s-6);">Period</div>
-							<div class="time-buttons" id="periodButtons">
-								<button type="button" class="tbtn" data-period="AM">AM</button>
-								<button type="button" class="tbtn" data-period="PM">PM</button>
-							</div>
+					<label class="label">Time</label>
+					<div>
+						<div class="muted time-block">Hour</div>
+						<div class="time-buttons" id="hourButtons"></div>
+					</div>
+					<div>
+						<div class="muted time-block">Minute</div>
+						<div class="time-buttons" id="minuteButtons"></div>
+					</div>
+					<div>
+						<div class="muted time-block">Period</div>
+						<div class="time-buttons" id="periodButtons">
+							<button type="button" class="tbtn" data-period="AM">AM</button>
+							<button type="button" class="tbtn" data-period="PM">PM</button>
 						</div>
 					</div>
 				</div>
 
 				<div class="form-group" id="dowGroup">
-					<label class="label">Days (Daily only)</label>
+					<label class="label">Days</label>
 					<div class="chips" id="dowButtons">
 						<button type="button" class="chip active" data-dow="0">Sun</button>
 						<button type="button" class="chip active" data-dow="1">Mon</button>
@@ -1225,11 +1249,10 @@
 						<button type="button" class="chip active" data-dow="5">Fri</button>
 						<button type="button" class="chip active" data-dow="6">Sat</button>
 					</div>
-					<div class="muted" style="margin-top: var(--s-8);">Tap days to enable/disable schedule.</div>
 				</div>
 
 				<div class="form-group hidden" id="repeatGroup">
-					<label class="label" for="repeatSchedule">Repeat schedule (optional)</label>
+					<label class="label" for="repeatSchedule">Repeat schedule</label>
 					<input id="repeatSchedule" class="input" type="text" placeholder="e.g., 1st weekend / March" />
 				</div>
 
@@ -1276,35 +1299,15 @@
 					shutdown—so it’s sustainable.</div>
 				<div class="card section" style="margin:0;">
 					<div class="muted">
-						- Tap a habit to complete it.<br />
-						- Use ⏭ to skip today (neutral).<br />
-						- Use search + tags when your list grows.
+						- Tap a habit to complete it for the selected date.<br />
+						- Use ⏭ to skip (neutral).<br />
+						- Tap a weekday to switch the active date.
 					</div>
 				</div>
 			</div>
 			<div class="mfoot">
 				<button class="btn btn--outline" id="startEmptyBtn">Start empty</button>
 				<button class="btn btn--primary" id="loadRoutineBtn">Load routine</button>
-			</div>
-		</div>
-	</div>
-
-	<!-- HISTORY MODAL (Weekday click) -->
-	<div class="modal hidden" id="historyModal">
-		<div class="overlay" id="historyOverlay"></div>
-		<div class="mcard" role="dialog" aria-modal="true" aria-labelledby="historyTitle">
-			<div class="mhead">
-				<h3 id="historyTitle">Day history</h3>
-				<button class="mclose" id="historyClose" aria-label="Close">&times;</button>
-			</div>
-			<div class="mbody">
-				<div class="muted" id="historySubtitle" style="margin-bottom: var(--s-12);"></div>
-				<div class="card section" style="margin:0;">
-					<div id="historyBody"></div>
-				</div>
-			</div>
-			<div class="mfoot">
-				<button class="btn btn--primary" id="historyOk">OK</button>
 			</div>
 		</div>
 	</div>
@@ -1361,6 +1364,11 @@
 		const nowISO = () => new Date().toISOString();
 		const makeId = () => `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
+		const deepClone = (obj) => {
+			if (typeof structuredClone === "function") return structuredClone(obj);
+			return JSON.parse(JSON.stringify(obj));
+		};
+
 		function dateKey(d = new Date()) {
 			const yyyy = d.getFullYear();
 			const mm = String(d.getMonth() + 1).padStart(2, "0");
@@ -1369,7 +1377,6 @@
 		}
 
 		function parseDateKey(key) {
-			// key = YYYY-MM-DD (local-ish). Use local Date to avoid UTC drift.
 			const [y, m, d] = key.split("-").map(n => parseInt(n, 10));
 			return new Date(y, (m - 1), d);
 		}
@@ -1404,12 +1411,18 @@
 			return `${h12}:${m} ${period}`;
 		}
 
+		function formatSelectedPillDate(key) {
+			const d = parseDateKey(key);
+			const short = d.toLocaleDateString(undefined, { month: "short", day: "2-digit" });
+			return short;
+		}
+
 		function comparePriority(a, b) {
 			const rank = { high: 0, medium: 1, low: 2 };
 			return (rank[a] ?? 9) - (rank[b] ?? 9);
 		}
 
-		function isScheduledToday(habit, dow) {
+		function isScheduledOnDow(habit, dow) {
 			if (habit.category !== "daily") return true;
 			const dows = Array.isArray(habit.daysOfWeek) ? habit.daysOfWeek : [0, 1, 2, 3, 4, 5, 6];
 			return dows.includes(dow);
@@ -1424,18 +1437,10 @@
 		}
 
 		/* =============================
-		   Storage Providers
+		   Storage Provider (IndexedDB only)
 		   ============================= */
-		class StorageProvider {
-			async init() { }
-			async loadAll() { throw new Error("Not implemented"); }
-			async saveAll(_) { throw new Error("Not implemented"); }
-			async clearAll(_) { }
-			async estimate() { return null; }
-		}
-
-		class IndexedDBProvider extends StorageProvider {
-			constructor() { super(); this.db = null; }
+		class IndexedDBProvider {
+			constructor() { this.db = null; }
 
 			async init() {
 				if (!("indexedDB" in window)) throw new Error("IndexedDB not available");
@@ -1502,84 +1507,30 @@
 			}
 		}
 
-		class LocalStorageChunkProvider extends StorageProvider {
-			constructor() {
-				super();
-				this.baseKey = "habitTracker:data:v2";
-				this.metaKey = `${this.baseKey}:meta`;
-				this.chunkKey = (i) => `${this.baseKey}:chunk:${i}`;
-				this.chunkSize = 450000;
-			}
-			async init() { }
-
-			_clear(meta) {
-				if (!meta || typeof meta.chunks !== "number") return;
-				for (let i = 0; i < meta.chunks; i++) localStorage.removeItem(this.chunkKey(i));
-				localStorage.removeItem(this.metaKey);
-			}
-
-			async loadAll() {
-				const meta = safeJsonParse(localStorage.getItem(this.metaKey), null);
-				if (!meta?.chunks) return null;
-				let s = "";
-				for (let i = 0; i < meta.chunks; i++) s += (localStorage.getItem(this.chunkKey(i)) || "");
-				return safeJsonParse(s, null);
-			}
-
-			async saveAll(state) {
-				const s = JSON.stringify(state);
-				const chunks = Math.ceil(s.length / this.chunkSize);
-				const old = safeJsonParse(localStorage.getItem(this.metaKey), null);
-				this._clear(old);
-
-				try {
-					for (let i = 0; i < chunks; i++) {
-						localStorage.setItem(this.chunkKey(i), s.slice(i * this.chunkSize, (i + 1) * this.chunkSize));
-					}
-					localStorage.setItem(this.metaKey, JSON.stringify({ chunks, len: s.length, ts: nowISO() }));
-				} catch (e) {
-					this._clear({ chunks });
-					throw e;
-				}
-			}
-
-			async clearAll() { this._clear(safeJsonParse(localStorage.getItem(this.metaKey), null)); }
-		}
-
-		async function makeBestProvider() {
-			const idb = new IndexedDBProvider();
-			try { await idb.init(); return idb; }
-			catch {
-				const ls = new LocalStorageChunkProvider();
-				await ls.init();
-				return ls;
-			}
-		}
-
 		/* =============================
 		   Default Routine
 		   ============================= */
 		function engagingRoutine() {
 			const createdAt = nowISO();
 			const daily = [
-				{ title: "Wake up + sunlight (5 min)", time: "0630", priority: "high", tags: ["health"], notes: "Get near a window/balcony. Hydrate after." },
-				{ title: "Drink water (500 ml)", time: "0640", priority: "high", tags: ["health"], notes: "Simple win to start momentum." },
-				{ title: "Plan top 3 tasks", time: "0700", priority: "high", tags: ["focus", "work"], notes: "What makes today successful?" },
-				{ title: "Light mobility / stretch (6 min)", time: "0710", priority: "medium", tags: ["health"], notes: "Neck, hips, hamstrings." },
-				{ title: "Deep Work Sprint 1 (60–90 min)", time: "0800", priority: "high", tags: ["focus", "work"], notes: "Phone away. Single task only." },
-				{ title: "Short break: walk + breathe", time: "0930", priority: "medium", tags: ["health"], notes: "5–10 min reset." },
-				{ title: "Deep Work Sprint 2 (60–90 min)", time: "1000", priority: "high", tags: ["focus", "work"], notes: "Continue the hardest task." },
-				{ title: "Protein + fruit snack", time: "1130", priority: "medium", tags: ["health"], notes: "Avoid energy crash." },
-				{ title: "Lunch (slow, no screen)", time: "1300", priority: "medium", tags: ["health"], notes: "Eat mindfully to recharge." },
-				{ title: "Admin / messages (30 min)", time: "1400", priority: "low", tags: ["work"], notes: "Batch communication." },
-				{ title: "Learning block (30 min)", time: "1500", priority: "medium", tags: ["learning"], notes: "Book, course, or problem solving." },
-				{ title: "Hydration check", time: "1630", priority: "low", tags: ["health"], notes: "Quick water top-up." },
-				{ title: "Workout (30–45 min)", time: "1830", priority: "high", tags: ["fitness", "health"], notes: "Strength or cardio." },
-				{ title: "Post-workout stretch (5 min)", time: "1930", priority: "medium", tags: ["health"], notes: "Prevent stiffness." },
-				{ title: "Dinner", time: "2030", priority: "medium", tags: ["health"], notes: "Aim for protein + veggies." },
-				{ title: "10 min tidy (reset space)", time: "2130", priority: "low", tags: ["home"], notes: "Small cleanup prevents chaos." },
-				{ title: "Read 10 pages", time: "2200", priority: "medium", tags: ["learning"], notes: "Low-stimulus wind down." },
-				{ title: "Screens off + tomorrow prep", time: "2300", priority: "high", tags: ["health", "focus"], notes: "Charge phone away from bed." }
+				{ title: "Wake up + sunlight (5 min)", time: "0630", priority: "high", tags: [], notes: "Get near a window/balcony. Hydrate after." },
+				{ title: "Drink water (500 ml)", time: "0640", priority: "high", tags: [], notes: "Simple win to start momentum." },
+				{ title: "Plan top 3 tasks", time: "0700", priority: "high", tags: [], notes: "What makes today successful?" },
+				{ title: "Light mobility / stretch (6 min)", time: "0710", priority: "medium", tags: [], notes: "Neck, hips, hamstrings." },
+				{ title: "Deep Work Sprint 1 (60–90 min)", time: "0800", priority: "high", tags: [], notes: "Phone away. Single task only." },
+				{ title: "Short break: walk + breathe", time: "0930", priority: "medium", tags: [], notes: "5–10 min reset." },
+				{ title: "Deep Work Sprint 2 (60–90 min)", time: "1000", priority: "high", tags: [], notes: "Continue the hardest task." },
+				{ title: "Protein + fruit snack", time: "1130", priority: "medium", tags: [], notes: "Avoid energy crash." },
+				{ title: "Lunch (slow, no screen)", time: "1300", priority: "medium", tags: [], notes: "Eat mindfully to recharge." },
+				{ title: "Admin / messages (30 min)", time: "1400", priority: "low", tags: [], notes: "Batch communication." },
+				{ title: "Learning block (30 min)", time: "1500", priority: "medium", tags: [], notes: "Book, course, or problem solving." },
+				{ title: "Hydration check", time: "1630", priority: "low", tags: [], notes: "Quick water top-up." },
+				{ title: "Workout (30–45 min)", time: "1830", priority: "high", tags: [], notes: "Strength or cardio." },
+				{ title: "Post-workout stretch (5 min)", time: "1930", priority: "medium", tags: [], notes: "Prevent stiffness." },
+				{ title: "Dinner", time: "2030", priority: "medium", tags: [], notes: "Aim for protein + veggies." },
+				{ title: "10 min tidy (reset space)", time: "2130", priority: "low", tags: [], notes: "Small cleanup prevents chaos." },
+				{ title: "Read 10 pages", time: "2200", priority: "medium", tags: [], notes: "Low-stimulus wind down." },
+				{ title: "Screens off + tomorrow prep", time: "2300", priority: "high", tags: [], notes: "Charge phone away from bed." }
 			].map(h => ({
 				id: makeId(),
 				title: h.title,
@@ -1625,7 +1576,7 @@
 					daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
 					repeatSchedule: "March",
 					priority: "high",
-					tags: ["health"],
+					tags: [],
 					notes: "Book and complete checkup.",
 					createdAt,
 					updatedAt: createdAt,
@@ -1645,6 +1596,7 @@
 			constructor() {
 				this.provider = null;
 
+				// Persisted state (selection is NOT persisted; it resets to today on each load)
 				this.state = {
 					version: APP_VERSION,
 					habits: [],
@@ -1659,12 +1611,14 @@
 						search: "",
 						searchVisible: false,
 						filters: { daily: "all", monthly: "all", yearly: "all" },
-						onboardingDone: false,
-						selectedDate: dateKey() // for history modal
+						onboardingDone: false
 					}
 				};
 
+				// Ephemeral UI-only state
+				this.selectedDateKey = dateKey(); // ALWAYS defaults to today on load
 				this.selectedTime = { hour: 8, minute: 0, period: "AM" };
+
 				this.editingId = null;
 				this.lastDeleted = null;
 
@@ -1675,102 +1629,100 @@
 				this.lastReminderKey = null;
 			}
 
+			/* ---------- loading overlay ---------- */
+			setLoading(isLoading, title = "Loading…", sub = "Opening your saved habits.") {
+				const overlay = document.getElementById("loadingOverlay");
+				const t = document.getElementById("loadingTitle");
+				const s = document.getElementById("loadingSub");
+				if (!overlay) return;
+				t.textContent = title;
+				s.textContent = sub;
+				overlay.classList.toggle("hidden", !isLoading);
+				overlay.setAttribute("aria-hidden", String(!isLoading));
+			}
+
+			/* ---------- selected date helpers ---------- */
+			getSelectedKey() { return this.selectedDateKey || dateKey(); }
+			getSelectedDateObj() { return parseDateKey(this.getSelectedKey()); }
+			isSelectedToday() { return this.getSelectedKey() === dateKey(); }
+
+			setSelectedDate(key) {
+				if (!/^\d{4}-\d{2}-\d{2}$/.test(key)) return;
+				this.selectedDateKey = key;
+				this.renderWeek();
+				this.renderCurrentTab();
+				this.updateSelectedPill();
+				this.scheduleReminderLoop(true);
+			}
+
 			/* ---------- init ---------- */
 			async init() {
-				this.provider = await makeBestProvider();
-				const loaded = await this.loadStateWithMigration();
-				if (loaded) this.state = loaded;
+				this.setLoading(true, "Loading…", "Opening IndexedDB and reading state.");
+				try {
+					this.provider = new IndexedDBProvider();
+					await this.provider.init();
 
-				// If user already typed a search, show it on load
-				if ((this.state.ui.search || "").trim()) this.state.ui.searchVisible = true;
+					const loaded = await this.loadState();
+					if (loaded) this.state = loaded;
 
-				this.applyTheme();
-				this.bindUI();
-				this.setupTimeSelectors();
+					// Always start at today on every fresh page load
+					this.selectedDateKey = dateKey();
 
-				this.renderWeek();
-				this.renderAll();
+					// If user already typed a search, show it on load
+					if ((this.state.ui.search || "").trim()) this.state.ui.searchVisible = true;
 
-				if (!this.state.ui.onboardingDone && this.state.habits.length === 0) this.openModal("onboardingModal");
+					this.applyTheme();
+					this.bindUI();
+					this.setupTimeSelectors();
 
-				this.scheduleReminderLoop(true);
-				await this.refreshStorageInfo();
-			}
+					this.renderWeek();
+					this.renderAll();
 
-			async loadStateWithMigration() {
-				// 1) load current storage
-				const s = await this.provider.loadAll();
-				if (s && s.version === APP_VERSION) return this.sanitizeState(s);
+					if (!this.state.ui.onboardingDone && this.state.habits.length === 0) {
+						this.openModal("onboardingModal");
+					}
 
-				// 2) migrate old v1 key once then delete it (prevents repeated growth/migration loops)
-				const v1 = safeJsonParse(localStorage.getItem("habitTrackerdata"), null);
-				if (v1?.habits && Array.isArray(v1.habits)) {
-					const migrated = this.sanitizeState({
-						version: APP_VERSION,
-						habits: v1.habits.map(h => this.migrateHabitV1(h)).filter(Boolean),
-						settings: { ...this.state.settings },
-						ui: { ...this.state.ui, onboardingDone: true }
-					});
-					await this.provider.saveAll(migrated);
-
-					// IMPORTANT: delete old key so refreshes cannot re-trigger migrations
-					localStorage.removeItem("habitTrackerdata");
-					return migrated;
+					this.scheduleReminderLoop(true);
+					await this.refreshStorageInfo();
+				} catch (e) {
+					console.error(e);
+					this.toast("Failed to load storage. Check browser settings (IndexedDB).");
+					const el = document.getElementById("storageInfo");
+					if (el) el.textContent = "IndexedDB error. Storage may be blocked in this browser.";
+				} finally {
+					this.setLoading(false);
 				}
-
-				return null;
 			}
 
-			migrateHabitV1(h) {
-				const createdAt = h.createdAt || nowISO();
-				return {
-					id: String(h.id ?? makeId()),
-					title: String(h.title ?? "Untitled"),
-					category: ["daily", "monthly", "yearly"].includes(h.category) ? h.category : "daily",
-					time: typeof h.time === "string" ? h.time : null,
-					daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
-					repeatSchedule: String(h.repeatSchedule || ""),
-					priority: "medium",
-					tags: [],
-					notes: "",
-					createdAt,
-					updatedAt: nowISO(),
-					archived: false,
-					completedDates: Array.isArray(h.completedDates) ? h.completedDates.map(d => this.toDateKeyCompat(d)).filter(Boolean) : [],
-					skippedDates: []
-				};
-			}
+			async loadState() {
+				const s = await this.provider.loadAll();
+				if (!s) return null;
 
-			toDateKeyCompat(d) {
-				if (typeof d !== "string") return null;
-				if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-				const parsed = new Date(d);
-				if (!isNaN(parsed.getTime())) return dateKey(parsed);
-				return null;
+				// Accept older/unknown shapes but sanitize into current schema
+				return this.sanitizeState(s);
 			}
 
 			sanitizeState(s) {
-				const safe = structuredClone(this.state);
-				safe.version = APP_VERSION;
+				const base = deepClone(this.state);
 
-				safe.habits = Array.isArray(s.habits) ? s.habits.map(h => this.sanitizeHabit(h)).filter(Boolean) : [];
-				safe.settings = { ...safe.settings, ...(s.settings || {}) };
-				safe.ui = { ...safe.ui, ...(s.ui || {}) };
+				base.version = APP_VERSION;
+				base.habits = Array.isArray(s.habits) ? s.habits.map(h => this.sanitizeHabit(h)).filter(Boolean) : [];
+				base.settings = { ...base.settings, ...(s.settings || {}) };
+				base.ui = { ...base.ui, ...(s.ui || {}) };
 
-				safe.settings.retentionDays = clamp(parseInt(safe.settings.retentionDays, 10) || 90, 14, 365);
-				safe.settings.theme = ["system", "light", "dark"].includes(safe.settings.theme) ? safe.settings.theme : "system";
-				safe.settings.remindersEnabled = !!safe.settings.remindersEnabled;
-				safe.settings.collapsed = safe.settings.collapsed || { morning: false, afternoon: false, evening: false };
+				base.settings.retentionDays = clamp(parseInt(base.settings.retentionDays, 10) || 90, 14, 365);
+				base.settings.theme = ["system", "light", "dark"].includes(base.settings.theme) ? base.settings.theme : "system";
+				base.settings.remindersEnabled = !!base.settings.remindersEnabled;
+				base.settings.collapsed = base.settings.collapsed || { morning: false, afternoon: false, evening: false };
 
-				safe.ui.currentTab = ["daily", "monthly", "yearly", "analytics", "account"].includes(safe.ui.currentTab) ? safe.ui.currentTab : "daily";
-				safe.ui.search = String(safe.ui.search || "");
-				safe.ui.searchVisible = !!safe.ui.searchVisible;
-				safe.ui.onboardingDone = !!safe.ui.onboardingDone;
-				safe.ui.filters = safe.ui.filters || { daily: "all", monthly: "all", yearly: "all" };
-				safe.ui.selectedDate = /^\d{4}-\d{2}-\d{2}$/.test(safe.ui.selectedDate) ? safe.ui.selectedDate : dateKey();
+				base.ui.currentTab = ["daily", "monthly", "yearly", "analytics", "account"].includes(base.ui.currentTab) ? base.ui.currentTab : "daily";
+				base.ui.search = String(base.ui.search || "");
+				base.ui.searchVisible = !!base.ui.searchVisible;
+				base.ui.onboardingDone = !!base.ui.onboardingDone;
+				base.ui.filters = base.ui.filters || { daily: "all", monthly: "all", yearly: "all" };
 
-				safe.habits = this.pruneHistory(safe.habits, safe.settings.retentionDays);
-				return safe;
+				base.habits = this.pruneHistory(base.habits, base.settings.retentionDays);
+				return base;
 			}
 
 			sanitizeHabit(h) {
@@ -1815,7 +1767,6 @@
 			}
 
 			async save() {
-				// Only save sanitized state (stable representation)
 				this.state = this.sanitizeState(this.state);
 				try {
 					await this.provider.saveAll(this.state);
@@ -1912,6 +1863,11 @@
 					});
 				});
 
+				// Jump to today
+				document.getElementById("goTodayBtn").addEventListener("click", () => {
+					this.setSelectedDate(dateKey());
+				});
+
 				// FAB
 				document.getElementById("addHabitBtn").addEventListener("click", () => this.openHabitModal(null));
 
@@ -1943,12 +1899,6 @@
 					this.toast("Routine loaded. Make it yours!");
 					this.renderAll();
 				});
-
-				// History modal
-				const closeHistory = () => this.closeModal("historyModal");
-				document.getElementById("historyClose").addEventListener("click", closeHistory);
-				document.getElementById("historyOverlay").addEventListener("click", closeHistory);
-				document.getElementById("historyOk").addEventListener("click", closeHistory);
 
 				// Confirm modal
 				const cancelConfirm = () => this._resolveConfirm(false);
@@ -2001,16 +1951,17 @@
 				document.getElementById("toastClose").addEventListener("click", () => this.hideToast());
 			}
 
-			/* ---------- Week rendering + history click ---------- */
+			/* ---------- Week rendering (no popup) ---------- */
 			renderWeek() {
 				const week = document.getElementById("weekDays");
 				week.innerHTML = "";
 
-				const today = new Date();
-				const todayKey = dateKey(today);
+				const selected = this.getSelectedDateObj();
+				const selectedKey = this.getSelectedKey();
+				const todayKey = dateKey();
 
-				// Sunday-based week start
-				const start = new Date(today);
+				// Sunday-based week start anchored on selected date
+				const start = new Date(selected);
 				start.setHours(0, 0, 0, 0);
 				start.setDate(start.getDate() - start.getDay());
 
@@ -2025,61 +1976,14 @@
 					btn.className = "daybtn";
 					btn.innerHTML = `<div class="dowl">${labels[i].toUpperCase()}</div><div class="dnum">${d.getDate()}</div>`;
 					btn.classList.toggle("today", key === todayKey);
-					btn.classList.toggle("active", key === this.state.ui.selectedDate);
+					btn.classList.toggle("active", key === selectedKey);
 
 					btn.addEventListener("click", () => {
-						this.state.ui.selectedDate = key;
-						this.renderWeek();      // update highlight
-						this.openDayHistory(key);
-						// don't persist selection (optional); keep in-memory to avoid needless writes on week click
+						this.setSelectedDate(key);
 					});
 
 					week.appendChild(btn);
 				}
-			}
-
-			openDayHistory(key) {
-				const d = parseDateKey(key);
-				const title = `History • ${d.toDateString()}`;
-				document.getElementById("historyTitle").textContent = title;
-
-				const dow = d.getDay();
-				const scheduled = this.state.habits
-					.filter(h => h.category === "daily" && !h.archived && isScheduledToday(h, dow));
-
-				const completed = scheduled.filter(h => (h.completedDates || []).includes(key));
-				const skipped = scheduled.filter(h => (h.skippedDates || []).includes(key));
-				const pending = scheduled.filter(h => !completed.includes(h) && !skipped.includes(h));
-
-				document.getElementById("historySubtitle").textContent =
-					`Scheduled: ${scheduled.length} • Completed: ${completed.length} • Skipped: ${skipped.length} • Pending: ${pending.length}`;
-
-				const list = (arr, label) => {
-					if (!arr.length) return `<div class="muted" style="margin-bottom: 10px;">${label}: none</div>`;
-					return `
-			<div style="font-weight: var(--fw-semibold); margin-bottom: 6px;">${label}</div>
-			<div style="display:flex; flex-direction: column; gap: 6px; margin-bottom: 12px;">
-			  ${arr.slice(0, 60).map(h => `
-				<div style="padding: 8px 10px; border: 1px solid var(--card-border); border-radius: 10px;">
-				  <div style="font-weight: var(--fw-semibold);">${escapeHTML(h.title)}</div>
-				  <div class="muted">${h.time ? formatTime(h.time) : "No time"} • ${h.priority}</div>
-				</div>
-			  `).join("")}
-			  ${arr.length > 60 ? `<div class="muted">Showing 60 of ${arr.length}…</div>` : ""}
-			</div>
-		  `;
-				};
-
-				const body = document.getElementById("historyBody");
-				if (scheduled.length === 0) {
-					body.innerHTML = `<div class="muted">No daily habits were scheduled on this day.</div>`;
-				} else if (completed.length === 0 && skipped.length === 0 && pending.length === scheduled.length) {
-					body.innerHTML = `<div class="muted">No history recorded for this day yet.</div>`;
-				} else {
-					body.innerHTML = list(completed, "Completed") + list(skipped, "Skipped") + list(pending, "Pending");
-				}
-
-				this.openModal("historyModal");
 			}
 
 			/* ---------- confirm modal ---------- */
@@ -2182,19 +2086,16 @@
 
 			/* ---------- render ---------- */
 			renderAll() {
-				// collapsed
 				["morning", "afternoon", "evening"].forEach(k => {
 					const section = document.getElementById(`${k}Section`);
 					section.classList.toggle("collapsed", !!this.state.settings.collapsed[k]);
 				});
 
-				// filter chips
 				["daily", "monthly", "yearly"].forEach(scope => {
 					const val = this.state.ui.filters[scope] || "all";
 					document.querySelectorAll(`.chip[data-scope="${scope}"]`).forEach(c => c.classList.toggle("active", c.dataset.filter === val));
 				});
 
-				// account
 				document.getElementById("themeSelect").value = this.state.settings.theme;
 				document.getElementById("retentionSelect").value = String(this.state.settings.retentionDays);
 				document.getElementById("remindersToggle").textContent = this.state.settings.remindersEnabled ? "On" : "Off";
@@ -2209,7 +2110,8 @@
 				if (tab === "yearly") this.renderList("yearly");
 				if (tab === "analytics") this.renderAnalytics();
 				if (tab === "account") this.refreshStorageInfo();
-				this.updateTodayPill();
+
+				this.updateSelectedPill();
 				this.updateProgressBar();
 			}
 
@@ -2232,11 +2134,11 @@
 			}
 
 			renderDaily() {
-				const today = new Date();
-				const key = dateKey(today);
-				const dow = today.getDay();
+				const selectedKey = this.getSelectedKey();
+				const selectedDate = this.getSelectedDateObj();
+				const dow = selectedDate.getDay();
 
-				let daily = this.filtered("daily").filter(h => isScheduledToday(h, dow));
+				let daily = this.filtered("daily").filter(h => isScheduledOnDow(h, dow));
 				daily.sort((a, b) => {
 					const ta = a.time || "9999";
 					const tb = b.time || "9999";
@@ -2254,27 +2156,31 @@
 					else slots.evening.push(h);
 				}
 
-				this.renderHabits("morningHabits", slots.morning, key);
-				this.renderHabits("afternoonHabits", slots.afternoon, key);
-				this.renderHabits("eveningHabits", slots.evening, key);
+				this.renderHabits("morningHabits", slots.morning, selectedKey);
+				this.renderHabits("afternoonHabits", slots.afternoon, selectedKey);
+				this.renderHabits("eveningHabits", slots.evening, selectedKey);
 
-				this.updateSectionMeta("morningMeta", slots.morning, key);
-				this.updateSectionMeta("afternoonMeta", slots.afternoon, key);
-				this.updateSectionMeta("eveningMeta", slots.evening, key);
+				this.updateSectionMeta("morningMeta", slots.morning, selectedKey);
+				this.updateSectionMeta("afternoonMeta", slots.afternoon, selectedKey);
+				this.updateSectionMeta("eveningMeta", slots.evening, selectedKey);
 
-				if (this.state.settings.remindersEnabled) {
-					const next = this.nextUpcoming(slots, key);
+				// Subtitle: reminders only for today, otherwise show selected date
+				if (this.state.settings.remindersEnabled && this.isSelectedToday()) {
+					const next = this.nextUpcoming(slots, selectedKey);
 					document.getElementById("headerSubtitle").textContent = next
 						? `Next up: ${next.title}${next.time ? " • " + formatTime(next.time) : ""}`
 						: "No upcoming habits. Nice.";
 				} else {
-					document.getElementById("headerSubtitle").textContent = "Build consistency, not perfection.";
+					const label = this.isSelectedToday()
+						? "Build consistency, not perfection."
+						: `Viewing: ${selectedDate.toDateString()}`;
+					document.getElementById("headerSubtitle").textContent = label;
 				}
 			}
 
 			renderList(category) {
 				const container = document.getElementById(`${category}Habits`);
-				const key = dateKey();
+				const key = this.getSelectedKey();
 
 				const list = this.filtered(category).slice().sort((a, b) => {
 					const pr = comparePriority(a.priority, b.priority);
@@ -2340,7 +2246,7 @@
 			</div>
 		  </div>
 		  <div class="actions">
-			<button class="iconbtn skip" title="Skip today">⏭</button>
+			<button class="iconbtn skip" title="Skip selected date">⏭</button>
 			<button class="iconbtn" title="Edit">✎</button>
 			<button class="iconbtn del" title="Delete">✕</button>
 		  </div>
@@ -2366,27 +2272,32 @@
 				document.getElementById(metaId).textContent = `${done}/${total} ✅  ${skipped} ⏭`;
 			}
 
-			updateTodayPill() {
-				const today = new Date();
-				const key = dateKey(today);
-				const dow = today.getDay();
+			updateSelectedPill() {
+				const selectedKey = this.getSelectedKey();
+				const selectedDate = this.getSelectedDateObj();
+				const dow = selectedDate.getDay();
 
-				const scheduled = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledToday(h, dow));
-				const done = scheduled.filter(h => (h.completedDates || []).includes(key)).length;
-				document.getElementById("todayPill").textContent = `Today: ${done}/${scheduled.length}`;
+				const scheduled = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledOnDow(h, dow));
+				const done = scheduled.filter(h => (h.completedDates || []).includes(selectedKey)).length;
+
+				const today = this.isSelectedToday() ? "Today" : formatSelectedPillDate(selectedKey);
+				document.getElementById("selectedPill").textContent = `Selected: ${today} • ${done}/${scheduled.length}`;
+
+				const goTodayBtn = document.getElementById("goTodayBtn");
+				goTodayBtn.classList.toggle("hidden", this.isSelectedToday());
 			}
 
 			updateProgressBar() {
 				const bar = document.getElementById("progressBar");
 				bar.innerHTML = "";
 
-				const today = new Date();
-				const key = dateKey(today);
-				const dow = today.getDay();
+				const key = this.getSelectedKey();
+				const selectedDate = this.getSelectedDateObj();
+				const dow = selectedDate.getDay();
 
 				let list = [];
 				if (this.state.ui.currentTab === "daily") {
-					list = this.filtered("daily").filter(h => isScheduledToday(h, dow));
+					list = this.filtered("daily").filter(h => isScheduledOnDow(h, dow));
 					list.sort((a, b) => (a.time || "9999").localeCompare(b.time || "9999"));
 				} else if (this.state.ui.currentTab === "monthly") {
 					list = this.filtered("monthly");
@@ -2403,12 +2314,12 @@
 				}
 			}
 
-			/* ---------- completion ---------- */
+			/* ---------- completion (writes to selected date) ---------- */
 			toggleComplete(id) {
 				const h = this.state.habits.find(x => x.id === id);
 				if (!h) return;
 
-				const key = dateKey();
+				const key = this.getSelectedKey();
 				const c = new Set(h.completedDates || []);
 				const s = new Set(h.skippedDates || []);
 
@@ -2429,7 +2340,7 @@
 				const h = this.state.habits.find(x => x.id === id);
 				if (!h) return;
 
-				const key = dateKey();
+				const key = this.getSelectedKey();
 				const c = new Set(h.completedDates || []);
 				const s = new Set(h.skippedDates || []);
 
@@ -2468,6 +2379,7 @@
 				const isEdit = !!id;
 
 				document.getElementById("habitTitleText").textContent = isEdit ? "Edit Habit" : "Add Habit";
+
 				document.getElementById("habitName").value = "";
 				document.getElementById("repeatSchedule").value = "";
 				document.getElementById("priority").value = "medium";
@@ -2476,7 +2388,7 @@
 
 				// default category based on current tab
 				const tab = this.state.ui.currentTab;
-				document.getElementById("habitCategory").value = tab === "monthly" ? "monthly" : (tab === "yearly" ? "yearly" : "daily");
+				document.getElementById("habitCategory").value = tab === "monthly" ? "monthly" : tab === "yearly" ? "yearly" : "daily";
 
 				this.selectedTime = { hour: 8, minute: 0, period: "AM" };
 				document.querySelectorAll("#dowButtons .chip").forEach(b => b.classList.add("active"));
@@ -2484,7 +2396,8 @@
 				if (isEdit) {
 					const h = this.state.habits.find(x => x.id === id);
 					if (!h) return;
-					document.getElementById("habitName").value = h.title || "";
+
+					document.getElementById("habitName").value = h.title;
 					document.getElementById("habitCategory").value = h.category;
 					document.getElementById("repeatSchedule").value = h.repeatSchedule || "";
 					document.getElementById("priority").value = h.priority || "medium";
@@ -2501,16 +2414,13 @@
 
 					if (h.category === "daily") {
 						const dows = new Set(h.daysOfWeek || [0, 1, 2, 3, 4, 5, 6]);
-						document.querySelectorAll("#dowButtons .chip").forEach(b => {
-							b.classList.toggle("active", dows.has(parseInt(b.dataset.dow, 10)));
-						});
+						document.querySelectorAll("#dowButtons .chip").forEach(b => b.classList.toggle("active", dows.has(parseInt(b.dataset.dow, 10))));
 					}
 				}
 
 				this.onCategoryChange(document.getElementById("habitCategory").value);
 				this.syncTimeButtons();
 				this.openModal("habitModal");
-				setTimeout(() => document.getElementById("habitName").focus(), 0);
 			}
 
 			saveHabitFromModal() {
@@ -2541,6 +2451,7 @@
 				if (this.editingId) {
 					const h = this.state.habits.find(x => x.id === this.editingId);
 					if (!h) return;
+
 					h.title = title;
 					h.category = category;
 					h.time = time;
@@ -2550,6 +2461,7 @@
 					h.tags = uniq(tags);
 					h.notes = notes;
 					h.updatedAt = now;
+
 					this.toast("Habit updated.");
 				} else {
 					this.state.habits.push({
@@ -2580,7 +2492,7 @@
 				const h = this.state.habits.find(x => x.id === id);
 				if (!h) return;
 
-				this.lastDeleted = structuredClone(h);
+				this.lastDeleted = deepClone(h);
 				this.state.habits = this.state.habits.filter(x => x.id !== id);
 				this.persist();
 				this.renderAll();
@@ -2605,7 +2517,6 @@
 				const completed = new Set(h.completedDates || []);
 				const skipped = new Set(h.skippedDates || []);
 				let streak = 0;
-
 				let cursor = new Date();
 				for (let i = 0; i < this.state.settings.retentionDays; i++) {
 					const k = dateKey(cursor);
@@ -2629,7 +2540,7 @@
 					d.setDate(d.getDate() - i);
 					const dow = d.getDay();
 
-					const daily = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledToday(h, dow));
+					const daily = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledOnDow(h, dow));
 					total += daily.length;
 					done += daily.filter(h => (h.completedDates || []).includes(key)).length;
 				}
@@ -2639,18 +2550,16 @@
 				const best = Math.max(0, ...this.state.habits.filter(h => !h.archived).map(h => this.computeStreak(h)));
 				document.getElementById("bestStreakPill").textContent = `Best streak: ${best}`;
 
-				// Calendar
+				// calendar
 				const cal = document.getElementById("completionCalendar");
 				cal.innerHTML = "";
-
 				const start = new Date(today.getFullYear(), today.getMonth(), 1);
 				const end = new Date(today.getFullYear(), today.getMonth() + 1, 0);
 
 				for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
 					const key = dateKey(d);
 					const dow = d.getDay();
-
-					const daily = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledToday(h, dow));
+					const daily = this.state.habits.filter(h => h.category === "daily" && !h.archived && isScheduledOnDow(h, dow));
 					const allDone = daily.length > 0 && daily.every(h => (h.completedDates || []).includes(key));
 
 					const el = document.createElement("div");
@@ -2659,7 +2568,7 @@
 					el.style.display = "flex";
 					el.style.alignItems = "center";
 					el.style.justifyContent = "center";
-					el.style.borderRadius = "10px";
+					el.style.borderRadius = "15px";
 					el.style.fontWeight = "600";
 					el.style.border = "1px solid var(--card-border)";
 					el.style.background = allDone ? "var(--success)" : "var(--bg-1)";
@@ -2681,9 +2590,9 @@
 					card.className = "card";
 					card.style.padding = "12px";
 					card.innerHTML = `
-			<div style="font-size: 22px; font-weight: var(--fw-bold); color: var(--primary); margin-bottom: 2px;">${maxStreak}</div>
-			<div class="muted" style="font-weight: var(--fw-semibold);">${cat.toUpperCase()}</div>
-		  `;
+						<div style="font-size: 22px; font-weight: var(--fw-bold); color: var(--primary); margin-bottom: 2px;">${maxStreak}</div>
+						<div class="muted" style="font-weight: var(--fw-semibold);">${cat.toUpperCase()}</div>
+					`;
 					streakWrap.appendChild(card);
 				});
 
@@ -2707,29 +2616,28 @@
 					.map(h => {
 						const hh = parseInt(h.time.slice(0, 2), 10);
 						const mm = parseInt(h.time.slice(2), 10);
-						return { ...h, _mins: hh * 60 + mm };
+						return { ...h, mins: hh * 60 + mm };
 					})
-					.filter(h => h._mins >= nowMin)
-					.sort((a, b) => a._mins - b._mins);
+					.filter(h => h.mins >= nowMin)
+					.sort((a, b) => a.mins - b.mins);
 
 				return all[0] || null;
 			}
 
 			scheduleReminderLoop(force = false) {
-				if (this.reminderTimer) {
-					clearInterval(this.reminderTimer);
-					this.reminderTimer = null;
-				}
+				if (this.reminderTimer) clearInterval(this.reminderTimer);
+				this.reminderTimer = null;
+
+				// Reminders only make sense for TODAY and on daily tab
 				if (!this.state.settings.remindersEnabled) return;
+				if (this.state.ui.currentTab !== "daily") return;
+				if (!this.isSelectedToday()) return;
 
 				const tick = () => {
-					if (this.state.ui.currentTab !== "daily") return;
+					const key = dateKey();
+					const dow = new Date().getDay();
 
-					const today = new Date();
-					const key = dateKey(today);
-					const dow = today.getDay();
-
-					let daily = this.filtered("daily").filter(h => isScheduledToday(h, dow));
+					let daily = this.filtered("daily").filter(h => isScheduledOnDow(h, dow));
 					daily.sort((a, b) => (a.time || "9999").localeCompare(b.time || "9999"));
 
 					const slots = { morning: [], afternoon: [], evening: [] };
@@ -2747,19 +2655,17 @@
 					const nowMin = now.getHours() * 60 + now.getMinutes();
 					const hh = parseInt(next.time.slice(0, 2), 10);
 					const mm = parseInt(next.time.slice(2), 10);
-					const diff = (hh * 60 + mm) - nowMin;
+					let diff = (hh * 60 + mm) - nowMin;
+					if (diff < 0) diff = 5;
 
-					if (diff >= 0 && diff <= 5) {
-						const k = `${key}:${next.id}:${next.time}`;
-						if (this.lastReminderKey !== k) {
-							this.lastReminderKey = k;
-							this.toast(`Upcoming in ~${diff} min: ${next.title}`);
-						}
+					const k = `${key}:${next.id}:${next.time}`;
+					if (this.lastReminderKey !== k && diff <= 10) {
+						this.lastReminderKey = k;
+						this.toast(`Upcoming in ${diff} min: ${next.title}`);
 					}
 				};
 
-				tick();
-				this.reminderTimer = setInterval(tick, 60_000);
+				this.reminderTimer = setInterval(tick, 60000);
 				if (force) tick();
 			}
 
@@ -2800,6 +2706,10 @@
 					this.state = sanitized;
 					await this.save();
 					this.applyTheme();
+
+					// After import, still default selection to today (per requirement)
+					this.selectedDateKey = dateKey();
+
 					this.renderWeek();
 					this.renderAll();
 					this.toast("Imported backup.");
@@ -2826,14 +2736,11 @@
 				});
 				if (!ok) return;
 
-				// Delete DB (reclaims app-owned IDB space; browsers may still report site usage differently)
-				await this.provider.clearAll?.({ deleteDb: true });
-
-				// Also clear any leftover v1 key if present
-				localStorage.removeItem("habitTrackerdata");
+				await this.provider.clearAll({ deleteDb: true });
 
 				// Re-init provider after deletion
-				this.provider = await makeBestProvider();
+				this.provider = new IndexedDBProvider();
+				await this.provider.init();
 
 				this.state = {
 					version: APP_VERSION,
@@ -2849,10 +2756,12 @@
 						search: "",
 						searchVisible: false,
 						filters: { daily: "all", monthly: "all", yearly: "all" },
-						onboardingDone: false,
-						selectedDate: dateKey()
+						onboardingDone: false
 					}
 				};
+
+				// Always default selected date to today on reopen / reset
+				this.selectedDateKey = dateKey();
 
 				await this.save();
 				this.applyTheme();
@@ -2864,47 +2773,36 @@
 				this.toast("Reset complete.");
 			}
 
-			/* ---------- storage info (fix “keeps increasing” confusion) ---------- */
+			/* ---------- storage info ---------- */
 			async refreshStorageInfo() {
 				const el = document.getElementById("storageInfo");
 				if (!el) return;
 
-				// App-only size (stable): based on the serialized state that WE store
 				const appState = this.sanitizeState(this.state);
 				const bytes = new TextEncoder().encode(JSON.stringify(appState)).length;
-
 				const habitsCount = appState.habits.length;
 				const historyCount = appState.habits.reduce((acc, h) => acc + (h.completedDates?.length || 0) + (h.skippedDates?.length || 0), 0);
 
-				let line1 = `Habits: ${habitsCount} • Completed: ${historyCount}`;
+				let line1 = `Habits: ${habitsCount} • History points: ${historyCount} • App state: ${(bytes / 1024).toFixed(1)} KB`;
 				let line2 = "";
 
 				const estimate = await this.provider.estimate?.();
 				if (estimate?.quota) {
-					const usedMB = (estimate.usage / (1024 * 1024)).toFixed(2);
-					const quotaMB = (estimate.quota / (1024 * 1024)).toFixed(0);
+					const usedMB = (estimate.usage / 1024 / 1024).toFixed(2);
+					const quotaMB = (estimate.quota / 1024 / 1024).toFixed(0);
 					line2 = ` • Storage: ${usedMB} MB / ${quotaMB} MB`;
 				}
 
-				el.textContent = `${line1}\n${line2}`;
+				el.textContent = line1 + line2;
 			}
 		}
 
-		/* =============================
-		   Boot
-		   ============================= */
+		// Boot
 		document.addEventListener("DOMContentLoaded", async () => {
 			const app = new HabitApp();
 			window.habitApp = app;
 			await app.init();
 		});
-	</script>
-
-	<script>
-		/* =============================
-		   Remaining app methods (kept in separate block for readability)
-		   ============================= */
-		HabitApp.prototype.onCategoryChange = HabitApp.prototype.onCategoryChange; // no-op (keeps editors calm)
 	</script>
 </body>
 

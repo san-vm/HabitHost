@@ -512,8 +512,8 @@
 		.habit {
 			display: flex;
 			align-items: center;
-			gap: var(--s-12);
-			padding: var(--s-12);
+			gap: var(--s-8);
+			padding: var(--s-10);
 			border-radius: var(--r-md);
 			border: 1px solid var(--card-border);
 			margin-bottom: var(--s-8);
@@ -523,8 +523,8 @@
 		}
 
 		.check {
-			width: 26px;
-			height: 26px;
+			width: 22px;
+			height: 22px;
 			border-radius: var(--r-full);
 			border: 2px solid var(--border);
 			display: flex;
@@ -568,9 +568,6 @@
 			margin: 0;
 			font-weight: var(--fw-semibold);
 			font-size: var(--fs-base);
-			overflow: hidden;
-			text-overflow: ellipsis;
-			white-space: nowrap;
 		}
 
 		.hmeta {
@@ -620,8 +617,9 @@
 
 		.actions {
 			display: flex;
-			gap: var(--s-6);
+			gap: var(--s-4);
 			flex-shrink: 0;
+			margin-right: -5px;
 		}
 
 		.iconbtn {
@@ -862,7 +860,7 @@
 
 		.chips {
 			display: flex;
-			gap: var(--s-8);
+			gap: var(--s-2);
 			flex-wrap: wrap;
 		}
 
@@ -981,9 +979,7 @@
 
 				<div class="header-actions">
 					<button class="btn btn--secondary btn--sm" id="toggleSearchBtn" title="Search">🔎</button>
-					<button class="btn btn--secondary btn--sm hidden" id="goTodayBtn"
-						title="Jump to today">Today</button>
-					<div class="pill" id="selectedPill">Selected: Today • 0/0</div>
+					<div class="pill" id="selectedPill">Today • 0/0</div>
 				</div>
 			</div>
 
@@ -1863,11 +1859,6 @@
 					});
 				});
 
-				// Jump to today
-				document.getElementById("goTodayBtn").addEventListener("click", () => {
-					this.setSelectedDate(dateKey());
-				});
-
 				// FAB
 				document.getElementById("addHabitBtn").addEventListener("click", () => this.openHabitModal(null));
 
@@ -2232,25 +2223,23 @@
 				el.dataset.id = h.id;
 
 				const time = h.time ? `<span class="badge">${formatTime(h.time)}</span>` : "";
-				const pr = `<span class="badge ${h.priority}">${h.priority.toUpperCase()}</span>`;
 				const tags = (h.tags || []).slice(0, 3).map(t => `<span class="tag">#${escapeHTML(t)}</span>`).join("");
 
 				el.innerHTML = `
-		  <div class="check">${isDone ? "✓" : (isSkip ? "–" : "")}</div>
-		  <div class="hcontent">
-			<p class="htitle" title="${escapeHTML(h.title)}">${escapeHTML(h.title)}</p>
-			<div class="hmeta">
-			  ${time}
-			  ${pr}
-			  ${tags}
-			</div>
-		  </div>
-		  <div class="actions">
-			<button class="iconbtn skip" title="Skip selected date">⏭</button>
-			<button class="iconbtn" title="Edit">✎</button>
-			<button class="iconbtn del" title="Delete">✕</button>
-		  </div>
-		`;
+					<div class="check">${isDone ? "✓" : (isSkip ? "–" : "")}</div>
+					<div class="hcontent">
+						<p class="htitle" title="${escapeHTML(h.title)}">${escapeHTML(h.title)}</p>
+						<div class="hmeta">
+						${time}
+						${tags}
+						</div>
+					</div>
+					<div class="actions">
+						<button class="iconbtn skip" title="Skip selected date">⏭</button>
+						<button class="iconbtn" title="Edit">✎</button>
+						<button class="iconbtn del" title="Delete">✕</button>
+					</div>
+					`;
 
 				el.addEventListener("click", (e) => {
 					if (e.target.closest(".actions")) return;
@@ -2281,10 +2270,7 @@
 				const done = scheduled.filter(h => (h.completedDates || []).includes(selectedKey)).length;
 
 				const today = this.isSelectedToday() ? "Today" : formatSelectedPillDate(selectedKey);
-				document.getElementById("selectedPill").textContent = `Selected: ${today} • ${done}/${scheduled.length}`;
-
-				const goTodayBtn = document.getElementById("goTodayBtn");
-				goTodayBtn.classList.toggle("hidden", this.isSelectedToday());
+				document.getElementById("selectedPill").textContent = `${today} • ${done}/${scheduled.length}`;
 			}
 
 			updateProgressBar() {

@@ -1039,7 +1039,6 @@
 
 				<div class="card section">
 					<h3>Monthly habits</h3>
-					<div class="muted">Keep monthly habits few and meaningful.</div>
 				</div>
 
 				<div class="card section">
@@ -1058,7 +1057,6 @@
 
 				<div class="card section">
 					<h3>Yearly habits</h3>
-					<div class="muted">Big rocks: health checks, finances, career reviews.</div>
 				</div>
 
 				<div class="card section">
@@ -1074,8 +1072,8 @@
 						<div class="pill" id="weeklyRatePill">Completion: 0%</div>
 						<div class="pill" id="bestStreakPill">Best streak: 0</div>
 					</div>
-					<div class="muted" style="margin-top: var(--s-10);">
-						Completion rate counts “completed” only (skips are neutral).
+					<div class="muted" id="motivationMessage" style="margin-top: var(--s-10);">
+						Keep going. Small wins compound.
 					</div>
 				</div>
 
@@ -1092,20 +1090,10 @@
 					<div id="streakOverview" style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
 					</div>
 				</div>
-
-				<div class="card section">
-					<h3>Motivation</h3>
-					<div class="muted" id="motivationMessage">Keep going. Small wins compound.</div>
-				</div>
 			</section>
 
 			<!-- ACCOUNT -->
 			<section id="accountTab" class="tab">
-				<div class="card section">
-					<h3>Account</h3>
-					<div class="muted">All data stays in this browser (no server).</div>
-				</div>
-
 				<div class="card section">
 					<h3>Appearance</h3>
 
@@ -1152,6 +1140,15 @@
 				</div>
 
 				<div class="card section">
+					<h3>Storage</h3>
+					<div class="muted" id="storageInfo">Checking storage…</div>
+					<div style="display:flex; gap: var(--s-10); flex-wrap: wrap; margin-top: var(--s-12);">
+						<button class="btn btn--outline" id="runCleanupBtn">Run cleanup</button>
+						<button class="btn btn--outline" id="resetAllBtn">Reset everything</button>
+					</div>
+				</div>
+
+				<div class="card section">
 					<h3>Backup & restore</h3>
 					<div style="display:flex; gap: var(--s-10); flex-wrap: wrap; margin-bottom: var(--s-10);">
 						<button class="btn btn--secondary" id="exportBtn">Export JSON</button>
@@ -1160,21 +1157,12 @@
 					</div>
 					<div class="muted">Export is recommended before switching browsers/devices.</div>
 				</div>
-
-				<div class="card section">
-					<h3>Storage & safety</h3>
-					<div class="muted" id="storageInfo">Checking storage…</div>
-					<div style="display:flex; gap: var(--s-10); flex-wrap: wrap; margin-top: var(--s-12);">
-						<button class="btn btn--outline" id="runCleanupBtn">Run cleanup</button>
-						<button class="btn btn--outline" id="resetAllBtn">Reset everything</button>
-					</div>
-				</div>
 			</section>
 		</main>
 
 		<nav class="bottom">
 			<button class="nav active" data-tab="daily"><span class="ico">☀️</span>Daily</button>
-			<button class="nav" data-tab="monthly"><span class="ico">🗓️</span>Monthly</button>
+			<button class="nav" data-tab="monthly"><span class="ico">📊</span>Monthly</button>
 			<button class="nav" data-tab="yearly"><span class="ico">🎯</span>Yearly</button>
 			<button class="nav" data-tab="analytics"><span class="ico">📈</span>Analytics</button>
 			<button class="nav" data-tab="account"><span class="ico">⚙️</span>Account</button>
@@ -1508,26 +1496,27 @@
 		   ============================= */
 		function engagingRoutine() {
 			const createdAt = nowISO();
-			const daily = [
-				{ title: "Wake up + sunlight (5 min)", time: "0630", priority: "high", tags: [], notes: "Get near a window/balcony. Hydrate after." },
-				{ title: "Drink water (500 ml)", time: "0640", priority: "high", tags: [], notes: "Simple win to start momentum." },
-				{ title: "Plan top 3 tasks", time: "0700", priority: "high", tags: [], notes: "What makes today successful?" },
-				{ title: "Light mobility / stretch (6 min)", time: "0710", priority: "medium", tags: [], notes: "Neck, hips, hamstrings." },
-				{ title: "Deep Work Sprint 1 (60–90 min)", time: "0800", priority: "high", tags: [], notes: "Phone away. Single task only." },
-				{ title: "Short break: walk + breathe", time: "0930", priority: "medium", tags: [], notes: "5–10 min reset." },
-				{ title: "Deep Work Sprint 2 (60–90 min)", time: "1000", priority: "high", tags: [], notes: "Continue the hardest task." },
-				{ title: "Protein + fruit snack", time: "1130", priority: "medium", tags: [], notes: "Avoid energy crash." },
-				{ title: "Lunch (slow, no screen)", time: "1300", priority: "medium", tags: [], notes: "Eat mindfully to recharge." },
-				{ title: "Admin / messages (30 min)", time: "1400", priority: "low", tags: [], notes: "Batch communication." },
-				{ title: "Learning block (30 min)", time: "1500", priority: "medium", tags: [], notes: "Book, course, or problem solving." },
-				{ title: "Hydration check", time: "1630", priority: "low", tags: [], notes: "Quick water top-up." },
-				{ title: "Workout (30–45 min)", time: "1830", priority: "high", tags: [], notes: "Strength or cardio." },
-				{ title: "Post-workout stretch (5 min)", time: "1930", priority: "medium", tags: [], notes: "Prevent stiffness." },
-				{ title: "Dinner", time: "2030", priority: "medium", tags: [], notes: "Aim for protein + veggies." },
-				{ title: "10 min tidy (reset space)", time: "2130", priority: "low", tags: [], notes: "Small cleanup prevents chaos." },
-				{ title: "Read 10 pages", time: "2200", priority: "medium", tags: [], notes: "Low-stimulus wind down." },
-				{ title: "Screens off + tomorrow prep", time: "2300", priority: "high", tags: [], notes: "Charge phone away from bed." }
-			].map(h => ({
+
+			const dailyRaw = [
+				{ title: "Wake + water", time: "0730", priority: "high" },
+				{ title: "No phone 1st hour", time: "0800", priority: "high" },
+				{ title: "Plan 3 outcomes", time: "0830", priority: "high" },
+				{ title: "Morning stretch", time: "0840", priority: "medium" },
+				{ title: "Deep Work 1", time: "1000", priority: "high" },
+
+				{ title: "Walk", time: "1315", priority: "medium" },
+				{ title: "Deep Work 2", time: "1400", priority: "high" },
+				{ title: "Review + plan tomorrow", time: "1645", priority: "high" },
+
+				{ title: "Evening workout", time: "1900", priority: "high" },
+				{ title: "Deep Work 3", time: "1930", priority: "high" },
+				{ title: "Evening stretch", time: "2030", priority: "medium" },
+
+				{ title: "Read", time: "2200", priority: "medium" },
+				{ title: "Screens off", time: "2300", priority: "high" }
+			];
+
+			const daily = dailyRaw.map(h => ({
 				id: makeId(),
 				title: h.title,
 				category: "daily",
@@ -1535,8 +1524,8 @@
 				daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
 				repeatSchedule: "",
 				priority: h.priority,
-				tags: h.tags,
-				notes: h.notes || "",
+				tags: [],
+				notes: "",
 				createdAt,
 				updatedAt: createdAt,
 				archived: false,
@@ -1547,14 +1536,14 @@
 			const monthly = [
 				{
 					id: makeId(),
-					title: "Monthly review: money + habits",
+					title: "Monthly review",
 					category: "monthly",
 					time: null,
 					daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
 					repeatSchedule: "1st weekend",
 					priority: "high",
-					tags: ["finance", "review"],
-					notes: "Check spending, adjust goals, prune habits.",
+					tags: [],
+					notes: "",
 					createdAt,
 					updatedAt: createdAt,
 					archived: false,
@@ -1566,14 +1555,14 @@
 			const yearly = [
 				{
 					id: makeId(),
-					title: "Annual health checkup",
+					title: "Health checkup",
 					category: "yearly",
 					time: null,
 					daysOfWeek: [0, 1, 2, 3, 4, 5, 6],
 					repeatSchedule: "March",
 					priority: "high",
 					tags: [],
-					notes: "Book and complete checkup.",
+					notes: "",
 					createdAt,
 					updatedAt: createdAt,
 					archived: false,
@@ -2201,11 +2190,11 @@
 
 				if (!habits.length) {
 					container.innerHTML = `
-			<div class="empty">
-			  <div class="big">🌿</div>
-			  <div class="t1">No habits here</div>
-			  <div class="t2">Add one with the + button.</div>
-			</div>`;
+					<div class="empty">
+					<div class="big">🌿</div>
+					<div class="t1">No habits here</div>
+					<div class="t2">Add one with the + button.</div>
+					</div>`;
 					return;
 				}
 
@@ -2214,16 +2203,42 @@
 				container.appendChild(frag);
 			}
 
+			// Streak up to selected date (not always "today")
+			computeStreakToKey(h, endKey) {
+				if (h.category !== "daily") return h.completedDates.length;
+
+				const completed = new Set(h.completedDates);
+				const skipped = new Set(h.skippedDates);
+
+				let streak = 0;
+				let cursor = parseDateKey(endKey);
+
+				for (let i = 0; i < this.state.settings.retentionDays; i++) {
+					const k = dateKey(cursor);
+					if (completed.has(k)) streak += 1;
+					else if (skipped.has(k)) {
+						// neutral day, doesn't break streak
+					} else break;
+
+					cursor.setDate(cursor.getDate() - 1);
+				}
+				return streak;
+			}
+
+
 			habitEl(h, key) {
-				const isDone = (h.completedDates || []).includes(key);
-				const isSkip = (h.skippedDates || []).includes(key) && !isDone;
+				const isDone = h.completedDates.includes(key);
+				const isSkip = h.skippedDates.includes(key) && !isDone;
+
+				const streak = this.computeStreakToKey(h, key); // key = selected date [file:1]
+				const streakPill = streak > 0 ? `<span class="badge badge--streak" title="Current streak">${streak}🔥</span>` : "";
 
 				const el = document.createElement("div");
-				el.className = `habit ${isDone ? "done" : ""} ${isSkip ? "skip" : ""}`;
+				el.className = `habit ${isDone ? "done" : isSkip ? "skip" : ""}`;
 				el.dataset.id = h.id;
 
 				const time = h.time ? `<span class="badge">${formatTime(h.time)}</span>` : "";
-				const tags = (h.tags || []).slice(0, 3).map(t => `<span class="tag">#${escapeHTML(t)}</span>`).join("");
+				const tags = h.tags.slice(0, 3).map(t => `<span class="tag">${escapeHTML(t)}</span>`).join("");
 
 				el.innerHTML = `
 					<div class="check">${isDone ? "✓" : (isSkip ? "–" : "")}</div>
@@ -2231,6 +2246,7 @@
 						<p class="htitle" title="${escapeHTML(h.title)}">${escapeHTML(h.title)}</p>
 						<div class="hmeta">
 						${time}
+						${streakPill}
 						${tags}
 						</div>
 					</div>
@@ -2239,7 +2255,7 @@
 						<button class="iconbtn" title="Edit">✎</button>
 						<button class="iconbtn del" title="Delete">✕</button>
 					</div>
-					`;
+				`;
 
 				el.addEventListener("click", (e) => {
 					if (e.target.closest(".actions")) return;
@@ -2583,11 +2599,26 @@
 				});
 
 				const msgs = [
+					"Great job! You're building amazing habits! 🌟",
+					"Consistency is key - you're doing fantastic! 💪",
+					"Every small step counts. Keep going! 🚶‍♂️",
+					"You're stronger than you think! 💎",
+					"Progress, not perfection. Well done! ✨",
+					"Keep showing up—you're making it happen! 🚀",
+					"Tiny wins lead to big results. Keep it up! 🧩",
+					"You're doing better than you think. 🌈",
+					"One day at a time. You've got this! 🗓️",
+					"Stay focused, stay proud. 🎯",
+					"Momentum is building. Don't stop now! 🔥",
+					"Your effort is paying off. Keep it up! 🏆",
+					"Believe in the process. Trust yourself. 🌱",
+					"Each action matters. You're on the path! 🛤️",
+					"Step by step, you're getting there. 👣",
 					"Consistency beats intensity.",
 					"Small actions compound into big change.",
-					"Show up even when it’s not perfect.",
+					"Show up even when it's not perfect.",
 					"Win the next 10 minutes.",
-					"Focus on identity: be the person who does the habit."
+					"Focus on identity: be the person who does the habit.",
 				];
 				document.getElementById("motivationMessage").textContent = msgs[Math.floor(Math.random() * msgs.length)];
 			}
@@ -2734,7 +2765,7 @@
 					settings: {
 						theme: "system",
 						retentionDays: 90,
-						remindersEnabled: false,
+						remindersEnabled: true,
 						collapsed: { morning: false, afternoon: false, evening: false }
 					},
 					ui: {

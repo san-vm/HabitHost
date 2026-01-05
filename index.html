@@ -425,10 +425,6 @@
 			background: var(--success);
 		}
 
-		.seg.skip {
-			background: rgba(var(--c-orange-500-rgb), .35);
-		}
-
 		.tab {
 			overflow-y: auto;
 			-ms-overflow-style: none;
@@ -546,16 +542,6 @@
 			border-color: var(--success);
 		}
 
-		.habit.skip {
-			background: var(--bg-2);
-			border-color: rgba(var(--c-orange-500-rgb), .45);
-		}
-
-		.habit.skip .check {
-			background: rgba(var(--c-orange-500-rgb), .35);
-			border-color: rgba(var(--c-orange-500-rgb), .55);
-		}
-
 		.hcontent {
 			flex: 1;
 			min-width: 0;
@@ -648,14 +634,6 @@
 
 		.iconbtn.del:hover {
 			background: rgba(var(--c-red-500-rgb), .18);
-		}
-
-		.iconbtn.skip {
-			background: rgba(var(--c-orange-500-rgb), .12);
-		}
-
-		.iconbtn.skip:hover {
-			background: rgba(var(--c-orange-500-rgb), .18);
 		}
 
 		.empty {
@@ -1037,13 +1015,9 @@
 					<button class="chip" data-filter="low" data-scope="monthly">Low</button>
 				</div>
 
-				<div class="card section">
-					<h3>Monthly habits</h3>
-				</div>
+				<h3>Monthly habits</h3>
 
-				<div class="card section">
-					<div id="monthlyHabits"></div>
-				</div>
+				<div id="monthlyHabits"></div>
 			</section>
 
 			<!-- YEARLY -->
@@ -1055,13 +1029,9 @@
 					<button class="chip" data-filter="low" data-scope="yearly">Low</button>
 				</div>
 
-				<div class="card section">
-					<h3>Yearly habits</h3>
-				</div>
+				<h3>Yearly habits</h3>
 
-				<div class="card section">
-					<div id="yearlyHabits"></div>
-				</div>
+				<div id="yearlyHabits"></div>
 			</section>
 
 			<!-- ANALYTICS -->
@@ -1284,7 +1254,6 @@
 				<div class="card section" style="margin:0;">
 					<div class="muted">
 						- Tap a habit to complete it for the selected date.<br />
-						- Use ⏭ to skip (neutral).<br />
 						- Tap a weekday to switch the active date.
 					</div>
 				</div>
@@ -1500,19 +1469,16 @@
 			const dailyRaw = [
 				{ title: "Wake + water", time: "0730", priority: "high" },
 				{ title: "No phone 1st hour", time: "0800", priority: "high" },
+				{ title: "Morning stretch", time: "0800", priority: "medium" },
 				{ title: "Plan 3 outcomes", time: "0830", priority: "high" },
-				{ title: "Morning stretch", time: "0840", priority: "medium" },
 				{ title: "Deep Work 1", time: "1000", priority: "high" },
 
-				{ title: "Walk", time: "1315", priority: "medium" },
 				{ title: "Deep Work 2", time: "1400", priority: "high" },
 				{ title: "Review + plan tomorrow", time: "1645", priority: "high" },
 
-				{ title: "Evening workout", time: "1900", priority: "high" },
+				{ title: "Face Wash", time: "1830", priority: "high" },
 				{ title: "Deep Work 3", time: "1930", priority: "high" },
-				{ title: "Evening stretch", time: "2030", priority: "medium" },
-
-				{ title: "Read", time: "2200", priority: "medium" },
+				{ title: "Workout", time: "2030", priority: "high" },
 				{ title: "Screens off", time: "2300", priority: "high" }
 			];
 
@@ -1530,7 +1496,6 @@
 				updatedAt: createdAt,
 				archived: false,
 				completedDates: [],
-				skippedDates: []
 			}));
 
 			const monthly = [
@@ -1548,7 +1513,6 @@
 					updatedAt: createdAt,
 					archived: false,
 					completedDates: [],
-					skippedDates: []
 				}
 			];
 
@@ -1567,7 +1531,6 @@
 					updatedAt: createdAt,
 					archived: false,
 					completedDates: [],
-					skippedDates: []
 				}
 			];
 
@@ -1718,9 +1681,6 @@
 				const completedDates = uniq((Array.isArray(h.completedDates) ? h.completedDates : [])
 					.map(d => typeof d === "string" ? d : null).filter(Boolean));
 
-				const skippedDates = uniq((Array.isArray(h.skippedDates) ? h.skippedDates : [])
-					.map(d => typeof d === "string" ? d : null).filter(Boolean));
-
 				const daysOfWeek = uniq((Array.isArray(h.daysOfWeek) ? h.daysOfWeek : [0, 1, 2, 3, 4, 5, 6])
 					.filter(n => Number.isInteger(n) && n >= 0 && n <= 6));
 
@@ -1738,7 +1698,6 @@
 					updatedAt: typeof h.updatedAt === "string" ? h.updatedAt : nowISO(),
 					archived: !!h.archived,
 					completedDates,
-					skippedDates
 				};
 			}
 
@@ -1746,7 +1705,6 @@
 				const minKey = daysAgoKey(retentionDays);
 				return habits.map(h => {
 					h.completedDates = (h.completedDates || []).filter(k => k >= minKey);
-					h.skippedDates = (h.skippedDates || []).filter(k => k >= minKey);
 					return h;
 				});
 			}
@@ -2208,7 +2166,6 @@
 				if (h.category !== "daily") return h.completedDates.length;
 
 				const completed = new Set(h.completedDates);
-				const skipped = new Set(h.skippedDates);
 
 				let streak = 0;
 				let cursor = parseDateKey(endKey);
@@ -2216,9 +2173,7 @@
 				for (let i = 0; i < this.state.settings.retentionDays; i++) {
 					const k = dateKey(cursor);
 					if (completed.has(k)) streak += 1;
-					else if (skipped.has(k)) {
-						// neutral day, doesn't break streak
-					} else break;
+					else break;
 
 					cursor.setDate(cursor.getDate() - 1);
 				}
@@ -2228,20 +2183,19 @@
 
 			habitEl(h, key) {
 				const isDone = h.completedDates.includes(key);
-				const isSkip = h.skippedDates.includes(key) && !isDone;
 
 				const streak = this.computeStreakToKey(h, key); // key = selected date [file:1]
 				const streakPill = streak > 0 ? `<span class="badge badge--streak" title="Current streak">${streak}🔥</span>` : "";
 
 				const el = document.createElement("div");
-				el.className = `habit ${isDone ? "done" : isSkip ? "skip" : ""}`;
+				el.className = `habit ${isDone ? "done" : ""}`;
 				el.dataset.id = h.id;
 
 				const time = h.time ? `<span class="badge">${formatTime(h.time)}</span>` : "";
 				const tags = h.tags.slice(0, 3).map(t => `<span class="tag">${escapeHTML(t)}</span>`).join("");
 
 				el.innerHTML = `
-					<div class="check">${isDone ? "✓" : (isSkip ? "–" : "")}</div>
+					<div class="check">${isDone ? "✓" : ""}</div>
 					<div class="hcontent">
 						<p class="htitle" title="${escapeHTML(h.title)}">${escapeHTML(h.title)}</p>
 						<div class="hmeta">
@@ -2251,7 +2205,6 @@
 						</div>
 					</div>
 					<div class="actions">
-						<button class="iconbtn skip" title="Skip selected date">⏭</button>
 						<button class="iconbtn" title="Edit">✎</button>
 						<button class="iconbtn del" title="Delete">✕</button>
 					</div>
@@ -2262,8 +2215,7 @@
 					this.toggleComplete(h.id);
 				});
 
-				const [skipBtn, editBtn, delBtn] = el.querySelectorAll(".iconbtn");
-				skipBtn.addEventListener("click", (e) => { e.stopPropagation(); this.toggleSkip(h.id); });
+				const [editBtn, delBtn] = el.querySelectorAll(".iconbtn");
 				editBtn.addEventListener("click", (e) => { e.stopPropagation(); this.openHabitModal(h.id); });
 				delBtn.addEventListener("click", (e) => { e.stopPropagation(); this.deleteHabit(h.id); });
 
@@ -2273,8 +2225,7 @@
 			updateSectionMeta(metaId, habits, key) {
 				const total = habits.length;
 				const done = habits.filter(h => (h.completedDates || []).includes(key)).length;
-				const skipped = habits.filter(h => (h.skippedDates || []).includes(key)).length;
-				document.getElementById(metaId).textContent = `${done}/${total} ✅  ${skipped} ⏭`;
+				document.getElementById(metaId).textContent = `${done}/${total} ✅`;
 			}
 
 			updateSelectedPill() {
@@ -2311,7 +2262,6 @@
 					const seg = document.createElement("div");
 					seg.className = "seg";
 					if ((h.completedDates || []).includes(key)) seg.classList.add("done");
-					else if ((h.skippedDates || []).includes(key)) seg.classList.add("skip");
 					bar.appendChild(seg);
 				}
 			}
@@ -2323,35 +2273,11 @@
 
 				const key = this.getSelectedKey();
 				const c = new Set(h.completedDates || []);
-				const s = new Set(h.skippedDates || []);
 
 				if (c.has(key)) c.delete(key);
 				else c.add(key);
-				s.delete(key);
 
 				h.completedDates = [...c];
-				h.skippedDates = [...s];
-				h.updatedAt = nowISO();
-
-				this.state.habits = this.pruneHistory(this.state.habits, this.state.settings.retentionDays);
-				this.persist();
-				this.renderCurrentTab();
-			}
-
-			toggleSkip(id) {
-				const h = this.state.habits.find(x => x.id === id);
-				if (!h) return;
-
-				const key = this.getSelectedKey();
-				const c = new Set(h.completedDates || []);
-				const s = new Set(h.skippedDates || []);
-
-				c.delete(key);
-				if (s.has(key)) s.delete(key);
-				else s.add(key);
-
-				h.completedDates = [...c];
-				h.skippedDates = [...s];
 				h.updatedAt = nowISO();
 
 				this.state.habits = this.pruneHistory(this.state.habits, this.state.settings.retentionDays);
@@ -2480,7 +2406,6 @@
 						updatedAt: now,
 						archived: false,
 						completedDates: [],
-						skippedDates: []
 					});
 					this.toast("Habit added.");
 				}
@@ -2517,13 +2442,11 @@
 				if (h.category !== "daily") return (h.completedDates || []).length;
 
 				const completed = new Set(h.completedDates || []);
-				const skipped = new Set(h.skippedDates || []);
 				let streak = 0;
 				let cursor = new Date();
 				for (let i = 0; i < this.state.settings.retentionDays; i++) {
 					const k = dateKey(cursor);
 					if (completed.has(k)) streak += 1;
-					else if (skipped.has(k)) { /* neutral */ }
 					else break;
 					cursor.setDate(cursor.getDate() - 1);
 				}
@@ -2629,7 +2552,7 @@
 				const nowMin = now.getHours() * 60 + now.getMinutes();
 
 				const all = [...slots.morning, ...slots.afternoon, ...slots.evening]
-					.filter(h => h.time && !(h.completedDates || []).includes(todayKey) && !(h.skippedDates || []).includes(todayKey))
+					.filter(h => h.time && !(h.completedDates || []).includes(todayKey))
 					.map(h => {
 						const hh = parseInt(h.time.slice(0, 2), 10);
 						const mm = parseInt(h.time.slice(2), 10);
@@ -2798,7 +2721,7 @@
 				const appState = this.sanitizeState(this.state);
 				const bytes = new TextEncoder().encode(JSON.stringify(appState)).length;
 				const habitsCount = appState.habits.length;
-				const historyCount = appState.habits.reduce((acc, h) => acc + (h.completedDates?.length || 0) + (h.skippedDates?.length || 0), 0);
+				const historyCount = appState.habits.reduce((acc, h) => acc + (h.completedDates?.length || 0), 0);
 
 				let line1 = `Habits: ${habitsCount} • History points: ${historyCount} • App state: ${(bytes / 1024).toFixed(1)} KB`;
 				let line2 = "";
